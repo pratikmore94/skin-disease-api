@@ -7,8 +7,16 @@ import os
 
 app = Flask(__name__)
 
-# Load the trained model
-model = load_model("best_highvolume8.keras")
+# Lazy load the model
+model = None
+
+def get_model():
+    global model
+    if model is None:
+        print("Loading model...")
+        model = load_model("best_highvolume8.keras")
+        print("Model loaded successfully!")
+    return model
 
 # Class names (same order as training)
 class_names = [
@@ -45,7 +53,7 @@ def predict():
     img_array = np.expand_dims(img_array, axis=0)
     img_array = preprocess_input(img_array)
 
-    prediction = model.predict(img_array)
+    prediction = get_model().predict(img_array)
 
     predicted_index = np.argmax(prediction)
     confidence = float(np.max(prediction) * 100)
